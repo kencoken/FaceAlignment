@@ -9,4 +9,10 @@ set(source ./FaceAlignment.h ./FernCascade.cpp ./Fern.cpp ./ShapeRegressor.cpp .
 add_executable(TestDemo.out ${source})
 target_link_libraries(TestDemo.out ${OpenCV_LIBS})
 
+set(source ./FaceAlignment.h ./FernCascade.cpp ./Fern.cpp ./ShapeRegressor.cpp ./Utils.cpp ./genshapes.cc)
+add_executable(genshapes.out ${source})
+target_link_libraries(genshapes.out ${OpenCV_LIBS})
 
+set(source ./FaceAlignment.h ./FernCascade.cpp ./Fern.cpp ./ShapeRegressor.cpp ./Utils.cpp ./test.cc ./utils/face_aligner.cc ./utils/sim_face_aligner.cc)
+add_executable(test.out ${source})
+target_link_libraries(test.out ${OpenCV_LIBS})

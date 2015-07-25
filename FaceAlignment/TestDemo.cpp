@@ -38,12 +38,12 @@ int main(){
     ifstream fin;
 
     for(int i = 0;i < test_img_num;i++){
-        string image_name = "./../../../Data/COFW_Dataset/testImages/";
+        string image_name = "../data/COFW_Dataset/testImages/";
         image_name = image_name + to_string(i+1) + ".jpg";
         Mat_<uchar> temp = imread(image_name,0);
         test_images.push_back(temp);
     }
-    fin.open("./../../../Data/COFW_Dataset/boundingbox_test.txt");
+    fin.open("../data/COFW_Dataset/boundingbox_test.txt");
     for(int i = 0;i < test_img_num;i++){
         BoundingBox temp;
         fin>>temp.start_x>>temp.start_y>>temp.width>>temp.height;
@@ -54,7 +54,7 @@ int main(){
     fin.close(); 
     
     ShapeRegressor regressor;
-    regressor.Load("./data/model.txt");
+    regressor.Load("../data/model.txt");
     while(true){
         int index = 1;
         cout<<"Input index:"<<endl;
@@ -62,11 +62,24 @@ int main(){
 
         Mat_<double> current_shape = regressor.Predict(test_images[index],test_bounding_box[index],initial_number);
         Mat test_image_1 = test_images[index].clone();
+        cvtColor(test_image_1,test_image_1,CV_GRAY2RGB);
         for(int i = 0;i < landmark_num;i++){
-            circle(test_image_1,Point2d(current_shape(i,0),current_shape(i,1)),3,Scalar(255,0,0),-1,8,0);
+            if (i == 10) { // left eye
+                circle(test_image_1,Point2d(current_shape(i,0),current_shape(i,1)),3,Scalar(0,255,0),-1,8,0);
+            } else if (i == 11) { // right eye
+                circle(test_image_1,Point2d(current_shape(i,0),current_shape(i,1)),3,Scalar(0,0,255),-1,8,0);
+            } else if (i == 21) { // nose tip
+                circle(test_image_1,Point2d(current_shape(i,0),current_shape(i,1)),3,Scalar(0,255,255),-1,8,0);
+            } else {
+                circle(test_image_1,Point2d(current_shape(i,0),current_shape(i,1)),3,Scalar(255,0,0),-1,8,0);
+            }
         }
+        cout<<"Showing image"<<endl;
         imshow("result",test_image_1);
         waitKey(0);
+
+        // transform image
+        
     }
     return 0;
 }
