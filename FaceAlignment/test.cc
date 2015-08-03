@@ -51,27 +51,35 @@ int main() {
     rect_bb.height = test_bounding_box[index].height;
 
     Mat in_im = test_images[index];
-    Mat im = fa.align(in_im, rect_bb);
 
-    cvtColor(in_im, in_im, CV_GRAY2RGB);
-    circle(in_im, fa.last_landmarks["eye_left"], 3, cv::Scalar(0,255,0),-1,8,0);
-    circle(in_im, fa.last_landmarks["eye_right"], 3, cv::Scalar(0,0,255),-1,8,0);
-    rectangle(in_im, Point(rect_bb.x, rect_bb.y),
+    Mat im_fa = fa.align(in_im, rect_bb);
+
+    Mat im_init = in_im.clone();
+    cvtColor(im_init, im_init, CV_GRAY2RGB);
+    circle(im_init, fa.last_landmarks["eye_left"], 3, cv::Scalar(0,255,0),-1,8,0);
+    circle(im_init, fa.last_landmarks["eye_right"], 3, cv::Scalar(0,0,255),-1,8,0);
+    rectangle(im_init, Point(rect_bb.x, rect_bb.y),
               Point(rect_bb.x + rect_bb.width, rect_bb.y + rect_bb.height),
               cv::Scalar(0,255,255),2,8,0);
-    imshow("result", in_im);
+    imshow("Initial Image", im_init);
     waitKey(0);
 
-    cvtColor(im, im, CV_GRAY2RGB);
-    circle(im, fa.last_gt_landmarks["eye_left"], 3, cv::Scalar(0,255,0),-1,8,0);
-    circle(im, fa.last_gt_landmarks["eye_right"], 3, cv::Scalar(0,0,255),-1,8,0);
-    imshow("result", im);
+    cvtColor(im_fa, im_fa, CV_GRAY2RGB);
+    circle(im_fa, fa.last_gt_landmarks["eye_left"], 3, cv::Scalar(0,255,0),-1,8,0);
+    circle(im_fa, fa.last_gt_landmarks["eye_right"], 3, cv::Scalar(0,0,255),-1,8,0);
+    imshow("fa Result", im_fa);
     waitKey(0);
 
     // transform image
 
+    Mat in_im_fas = in_im.clone();
+
     Mat im_fas = fas.align(in_im, rect_bb);
-    imshow("Similarity Transform Result", im_fas);
+    cvtColor(im_fas, im_fas, CV_GRAY2RGB);
+    for (size_t i = 0; i < fas.last_gt_landmarks.size(); ++i) {
+      circle(im_fas, fas.last_gt_landmarks[i], 3, cv::Scalar(0,255,0),-1,8,0);
+    }
+    imshow("fas Result", im_fas);
     waitKey(0);
 
   }

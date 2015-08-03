@@ -34,7 +34,6 @@ protected:
   Size dest_sz_ = Size(125,160);
   Point2f offset_pct_ = Point2f(0.42, 0.45);
 
-
 };
 
 #endif

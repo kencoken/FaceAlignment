@@ -37,8 +37,8 @@ public:
 
   virtual Mat align(const Mat im, const Rect detection);
 
-  map<string, Point2f> last_landmarks;
-  map<string, Point2f> last_gt_landmarks;
+  vector<Point2f> last_landmarks;
+  vector<Point2f> last_gt_landmarks;
 
 protected:
   Mat_<double> getMeanShape_(const string& shape_samples_gt,
@@ -49,7 +49,9 @@ protected:
   Mat_<double> mean_shape_;
 
   Size dest_sz_ = Size(125,160);
-  Point2f offset_pct_ = Point2f(0.42, 0.45);
+
+  float scale_ = 0.75;
+  float top_pct = 0.5;
 
 };
 

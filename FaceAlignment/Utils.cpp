@@ -63,7 +63,7 @@ void SimilarityTransform(const Mat_<double>& shape1, const Mat_<double>& shape2,
                          Mat_<double>& rotation,double& scale){
     rotation = Mat::zeros(2,2,CV_64FC1);
     scale = 0;
-    
+
     // center the data
     double center_x_1 = 0;
     double center_y_1 = 0;
@@ -79,7 +79,7 @@ void SimilarityTransform(const Mat_<double>& shape1, const Mat_<double>& shape2,
     center_y_1 /= shape1.rows;
     center_x_2 /= shape2.rows;
     center_y_2 /= shape2.rows;
-    
+
     Mat_<double> temp1 = shape1.clone();
     Mat_<double> temp2 = shape2.clone();
     for(int i = 0;i < shape1.rows;i++){
@@ -89,7 +89,6 @@ void SimilarityTransform(const Mat_<double>& shape1, const Mat_<double>& shape2,
         temp2(i,1) -= center_y_2;
     }
 
-     
     Mat_<double> covariance1, covariance2;
     Mat_<double> mean1,mean2;
     // calculate covariance matrix
@@ -108,7 +107,7 @@ void SimilarityTransform(const Mat_<double>& shape1, const Mat_<double>& shape2,
         num = num + temp1(i,1) * temp2(i,0) - temp1(i,0) * temp2(i,1);
         den = den + temp1(i,0) * temp2(i,0) + temp1(i,1) * temp2(i,1);      
     }
-    
+
     double norm = sqrt(num*num + den*den);    
     double sin_theta = num / norm;
     double cos_theta = den / norm;

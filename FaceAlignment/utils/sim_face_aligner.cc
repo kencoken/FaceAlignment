@@ -9,6 +9,11 @@ Mat SimFaceAligner::align(const Mat im, Rect detection) {
 
   const int initial_number = 20;
   Mat_<double> current_shape = regressor_.Predict(im, bb, initial_number);
+  last_landmarks.clear();
+  for (size_t i = 0; i < current_shape.rows; ++i) {
+    last_landmarks.push_back(Point2f(current_shape.at<double>(i, 0),
+                                     current_shape.at<double>(i, 1)));
+  }
 
   // start alignment
 
@@ -28,8 +33,51 @@ Mat SimFaceAligner::align(const Mat im, Rect detection) {
   //transpose(rotation, rotation);
   Mat_<double> M = Mat::zeros(2, 3, CV_64F);
   rotation.copyTo(M(Rect(0, 0, 2, 2)));
+  M.at<double>(0,0) = M.at<double>(0,0)*scale;
+  M.at<double>(1,1) = M.at<double>(1,1)*scale;
+
+  int top_margin = 100;
+  int side_margin = 50;
+  int bottom_margin = 50;
+
+  vector<Point2f> intermediary_landmarks;
+  cv::transform(last_landmarks, intermediary_landmarks, M);
+
+  float mean_x = 0, mean_y = 0;
+  for (size_t i = 0; i < intermediary_landmarks.size(); ++i) {
+    mean_x += intermediary_landmarks[i].x;
+    mean_y += intermediary_landmarks[i].y;
+  }
+  mean_x /= static_cast<float>(intermediary_landmarks.size());
+  mean_y /= static_cast<float>(intermediary_landmarks.size());
+  int top_offset = static_cast<int>(top_pct*static_cast<float>(dest_sz_.height) - mean_y);
+  int left_offset = static_cast<int>(0.5*static_cast<float>(dest_sz_.width) - mean_x);
+
+  M.at<double>(0,2) = M.at<double>(0,2) + left_offset;
+  M.at<double>(1,2) = M.at<double>(1,2) + top_offset;
+
+  Mat M_rotsc = cv::getRotationMatrix2D(Point2f(dest_sz_.width/2.0, dest_sz_.height/2.0),
+                                        0.0, scale_);
+
+  /* compose transform */
+
+  Mat identity_row = Mat::zeros(1, 3, CV_64F);
+  identity_row.at<double>(0,2) = 1.0;
+
+  M.push_back(identity_row);
+  M_rotsc.push_back(identity_row);
+  M = M_rotsc*M;
+  M = M(Rect(0, 0, 3, 2));
+
   std::cout << M << std::endl;
   cv::warpAffine(im, transformed_im, M, Size(500, 500));
+
+  transformed_im = transformed_im(cv::Rect(0, 0,
+                                           dest_sz_.width,
+                                           dest_sz_.height));
+  std::cout << "Size is: " << transformed_im.cols << "x" << transformed_im.rows << std::endl;
+
+  cv::transform(last_landmarks, last_gt_landmarks, M);
 
   return transformed_im;
 
